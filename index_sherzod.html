@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Performance Dashboard - SHERZOD NORMURODOV</title>
+    <meta charset="UTF-8" />
+    <style>
+        table, th, td { border: 1px solid black; border-collapse: collapse; padding: 8px; }
+        th { background-color: #f2f2f2; }
+        h1, h2 { font-family: Arial, sans-serif; }
+    </style>
+</head>
+<body>
+    <h1>Student Performance Data - SHERZOD NORMURODOV</h1>
+
+    <table id="students-table">
+        <thead>
+            <tr>
+                <th>Gender</th>
+                <th>Race/Ethnicity</th>
+                <th>Parental Education</th>
+                <th>Lunch</th>
+                <th>Prep Course</th>
+                <th>Math</th>
+                <th>Reading</th>
+                <th>Writing</th>
+            </tr>
+        </thead>
+        <tbody id="student-body"></tbody>
+    </table>
+
+    <h2>Add New Student</h2>
+    <form id="add-form">
+        <input type="text" name="gender" placeholder="Gender" required />
+        <input type="text" name="race_ethnicity" placeholder="Race/Ethnicity" required />
+        <input type="text" name="parental_level_of_education" placeholder="Parental Education" required />
+        <input type="text" name="lunch" placeholder="Lunch" required />
+        <input type="text" name="test_preparation_course" placeholder="Prep Course" required />
+        <input type="number" name="math_score" placeholder="Math Score" required />
+        <input type="number" name="reading_score" placeholder="Reading Score" required />
+        <input type="number" name="writing_score" placeholder="Writing Score" required />
+        <button type="submit">Add Student</button>
+    </form>
+
+    <h2>Delete Student by Scores</h2>
+    <form id="delete-form">
+        <input type="number" name="math_score" placeholder="Math Score" required />
+        <input type="number" name="reading_score" placeholder="Reading Score" required />
+        <input type="number" name="writing_score" placeholder="Writing Score" required />
+        <button type="submit">Delete Student</button>
+    </form>
+
+    <script>
+        const EC2_BACKEND_URL = 'http://13.250.11.89:8000';
+
+        async function fetchStudents() {
+            const res = await fetch(`${EC2_BACKEND_URL}/fetch_student`);
+            const data = await res.json();
+            const tbody = document.getElementById('student-body');
+            tbody.innerHTML = '';
+            data.forEach(student => {
+                const row = document.createElement('tr');
+                student.forEach(cell => {
+                    const td = document.createElement('td');
+                    td.textContent = cell;
+                    row.appendChild(td);
+                });
+                tbody.appendChild(row);
+            });
+        }
+
+        async function addStudent(data) {
+            await fetch(`${EC2_BACKEND_URL}/add_student`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            fetchStudents();
+        }
+
+        async function deleteStudent(data) {
+            await fetch(`${EC2_BACKEND_URL}/delete_student`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            fetchStudents();
+        }
+
+        document.getElementById('add-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = {};
+            Array.from(form.elements).forEach(el => {
+                if (el.name) data[el.name] = el.value;
+            });
+            await addStudent(data);
+            form.reset();
+        };
+
+        document.getElementById('delete-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = {
+                math_score: form.math_score.value,
+                reading_score: form.reading_score.value,
+                writing_score: form.writing_score.value
+            };
+            await deleteStudent(data);
+            form.reset();
+        };
+
+        fetchStudents();
+    </script>
+</body>
+</html>
