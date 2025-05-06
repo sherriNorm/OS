@@ -8,6 +8,15 @@ Add an inbound rule to the RDS security group: Type: PostgreSQL Source: EC2 Secu
 
 Then we need to go to DBeaver and donwload database from kaggle mkdir webapp_sherzod cd webapp_sherzod python3 -m venv venv source venv/bin/activate nano app.py input backend app.py
 
-Setup S3 bucket Create the bucket input the html file index.html Change the properties and make S3 static website hosting Enabled
+ Setup S3 for Frontend Hosting
+Step 1: Create an S3 Bucket
+Enable Static Website Hosting
+
+Upload your frontend index.html file
+
+Step 2: Update Permissions
+Make objects publicly readable
+
+Set the bucket policy for public read access (for testing):
 
 run python3 app.py
